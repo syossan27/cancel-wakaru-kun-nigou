@@ -8,6 +8,7 @@ import (
   //"fmt"
   "net/http"
   "sync"
+  "strconv"
 )
 
 type PostData struct {
@@ -88,9 +89,21 @@ func GetUserPageToConnpass(list *List, url string, wg *sync.WaitGroup) {
     }
   })
 
-  // TODO: 要実装
-  // ページネーションが存在し、かつ最終ページではない場合に次のページを取得する
-  if doc.Is("#main > div.paging_area > ul > li.active > span") && doc.Is("#main > div.paging_area > ul > li.active + li"){
+  // ページ数が１以上ある場合
+  if (doc.Find("#main > div.paging_area > ul > li").Length() - 1) > 1 {
+    total_page := doc.Find("#main > div.paging_area > ul > li").Length() - 1
+
+    for i := 2; i <= total_page; i++ {
+      doc, _ := goquery.NewDocument(url + "?page=" + strconv.Itoa(i))
+      doc.Find("#main > div.event_area.mb_10 > div.event_list.vevent").Each(func(_ int, s *goquery.Selection) {
+        join_status := s.Find("p.label_status_tag").Text()
+        if join_status == "キャンセル" {
+          user.CancelCount++
+        } else {
+          user.JoinCount++
+        }
+      })
+    }
   }
 
   list.User = append(list.User, user)
