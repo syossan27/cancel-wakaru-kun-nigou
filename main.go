@@ -3,12 +3,13 @@ package main
 import (
   "github.com/ant0ine/go-json-rest/rest"
   "github.com/PuerkitoBio/goquery"
-  "github.com/k0kubun/pp"
+  //"github.com/k0kubun/pp"
   "log"
-  //"fmt"
+  "fmt"
   "net/http"
   "sync"
   "strconv"
+  "runtime"
 )
 
 type PostData struct {
@@ -43,6 +44,9 @@ func main() {
 }
 
 func PostCancel(w rest.ResponseWriter, r *rest.Request) {
+  cpus := runtime.NumCPU()
+  runtime.GOMAXPROCS(cpus)
+
   post_data := PostData{}
   err := r.DecodeJsonPayload(&post_data)
   if err != nil {
@@ -54,6 +58,7 @@ func PostCancel(w rest.ResponseWriter, r *rest.Request) {
   }
 
   list := List{}
+  fmt.Println(post_data.Url)
   GetPageToConnpass(post_data.Url, &list)
 
   wg := new(sync.WaitGroup)
@@ -62,7 +67,9 @@ func PostCancel(w rest.ResponseWriter, r *rest.Request) {
     go GetUserPageToConnpass(&list, url, wg)
   }
   wg.Wait()
-  pp.Println(list.User)
+
+  w.WriteJson(list.User)
+  // pp.Println(list.User)
 }
 
 func GetPageToConnpass(url string, list *List) {
@@ -76,36 +83,41 @@ func GetPageToConnpass(url string, list *List) {
 }
 
 func GetUserPageToConnpass(list *List, url string, wg *sync.WaitGroup) {
-  user := User{"", "", 0, 0}
+  // 退会ユーザーなどはURLが取れないため無視
+  if url != "" {
+    user := User{"", "", 0, 0}
 
-  doc, _ := goquery.NewDocument(url)
-  user.Name, _ = doc.Find("#side_area > div.mb_20.text_center img").Attr("title")
-  doc.Find("#main > div.event_area.mb_10 > div.event_list.vevent").Each(func(_ int, s *goquery.Selection) {
-    join_status := s.Find("p.label_status_tag").Text()
-    if join_status == "キャンセル" {
-      user.CancelCount++
-    } else {
-      user.JoinCount++
+    doc, _ := goquery.NewDocument(url)
+    image_elm := doc.Find("#side_area > div.mb_20.text_center img")
+    user.Name, _ = image_elm.Attr("title")
+    user.Image, _ = image_elm.Attr("src")
+    doc.Find("#main > div.event_area.mb_10 > div.event_list.vevent").Each(func(_ int, s *goquery.Selection) {
+      join_status := s.Find("p.label_status_tag").Text()
+      if join_status == "キャンセル" {
+        user.CancelCount++
+      } else {
+        user.JoinCount++
+      }
+    })
+
+    // ページ数が１以上ある場合
+    if (doc.Find("#main > div.paging_area > ul > li").Length() - 1) > 1 {
+      total_page := doc.Find("#main > div.paging_area > ul > li").Length() - 1
+
+      for i := 2; i <= total_page; i++ {
+        doc, _ := goquery.NewDocument(url + "?page=" + strconv.Itoa(i))
+        doc.Find("#main > div.event_area.mb_10 > div.event_list.vevent").Each(func(_ int, s *goquery.Selection) {
+          join_status := s.Find("p.label_status_tag").Text()
+          if join_status == "キャンセル" {
+            user.CancelCount++
+          } else {
+            user.JoinCount++
+          }
+        })
+      }
     }
-  })
 
-  // ページ数が１以上ある場合
-  if (doc.Find("#main > div.paging_area > ul > li").Length() - 1) > 1 {
-    total_page := doc.Find("#main > div.paging_area > ul > li").Length() - 1
-
-    for i := 2; i <= total_page; i++ {
-      doc, _ := goquery.NewDocument(url + "?page=" + strconv.Itoa(i))
-      doc.Find("#main > div.event_area.mb_10 > div.event_list.vevent").Each(func(_ int, s *goquery.Selection) {
-        join_status := s.Find("p.label_status_tag").Text()
-        if join_status == "キャンセル" {
-          user.CancelCount++
-        } else {
-          user.JoinCount++
-        }
-      })
-    }
+    list.User = append(list.User, user)
   }
-
-  list.User = append(list.User, user)
   wg.Done()
 }
