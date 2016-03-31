@@ -61,9 +61,6 @@ func PostCancel(w rest.ResponseWriter, r *rest.Request) {
     rest.Error(w, "url required", 400)
   }
 
-  pp.Println("=== URL ===")
-  pp.Println(post_data.Url)
-
   list := List{}
   fmt.Println(post_data.Url)
   GetPageToConnpass(post_data.Url, &list)

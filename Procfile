@@ -1,1 +1,1 @@
-web: cancel-wakaru-kun-nigou
+worker: cancel-wakaru-kun-nigou
