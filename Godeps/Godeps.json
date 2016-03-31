@@ -26,12 +26,29 @@
 			"Rev": "37ad7dc626602a8355801da6acd85155655520f8"
 		},
 		{
+			"ImportPath": "github.com/k0kubun/pp",
+			"Comment": "v2.1.0-8-g36d5366",
+			"Rev": "36d5366f4ec038f9a76dd85c7b29074089bb9b9e"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-colorable",
+			"Rev": "3dac7b4f76f6e17fb39b768b89e3783d16e237fe"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-isatty",
+			"Rev": "56b76bdf51f7708750eac80fa38b952bb9f32639"
+		},
+		{
 			"ImportPath": "golang.org/x/net/html",
 			"Rev": "3e5cd1ed149001198e582f9d3f5bfd564cde2896"
 		},
 		{
 			"ImportPath": "golang.org/x/net/html/atom",
 			"Rev": "3e5cd1ed149001198e582f9d3f5bfd564cde2896"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "320cb01ddbbf0473674c2585f9b6e245721de355"
 		}
 	]
 }
