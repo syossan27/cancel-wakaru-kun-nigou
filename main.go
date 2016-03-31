@@ -32,7 +32,7 @@ func main() {
   api := rest.NewApi()
   api.Use(rest.DefaultDevStack...)
   router, err := rest.MakeRouter(
-    rest.Post("/cancel", PostCancel),
+    rest.Post("/", PostCancel),
   )
 
   if err != nil {
