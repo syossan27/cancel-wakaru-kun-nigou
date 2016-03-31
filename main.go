@@ -31,6 +31,7 @@ type User struct {
 }
 
 func main() {
+  pp.Println("=== App Start ===")
   api := rest.NewApi()
   api.Use(rest.DefaultDevStack...)
   router, err := rest.MakeRouter(
