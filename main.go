@@ -11,7 +11,7 @@ import (
 
   "github.com/ant0ine/go-json-rest/rest"
   "github.com/PuerkitoBio/goquery"
-  //"github.com/k0kubun/pp"
+  "github.com/k0kubun/pp"
 )
 
 type PostData struct {
@@ -60,6 +60,9 @@ func PostCancel(w rest.ResponseWriter, r *rest.Request) {
   if post_data.Url == "" {
     rest.Error(w, "url required", 400)
   }
+
+  pp.Println("=== URL ===")
+  pp.Println(post_data.Url)
 
   list := List{}
   fmt.Println(post_data.Url)
