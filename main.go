@@ -31,7 +31,6 @@ type User struct {
 }
 
 func main() {
-  pp.Println("=== App Start ===")
   api := rest.NewApi()
   api.Use(rest.DefaultDevStack...)
   router, err := rest.MakeRouter(
@@ -45,7 +44,7 @@ func main() {
   port := os.Getenv("PORT")
 
   api.SetApp(router)
-  log.Fatal(http.ListenAndServe(port, api.MakeHandler()))
+  log.Fatal(http.ListenAndServe(":" + port, api.MakeHandler()))
 }
 
 func PostCancel(w rest.ResponseWriter, r *rest.Request) {
