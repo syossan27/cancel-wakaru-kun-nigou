@@ -1,8 +1,8 @@
 package main
 
 import (
-  "vendor/github.com/ant0ine/go-json-rest/rest"
-  "vendor/github.com/PuerkitoBio/goquery"
+  "github.com/ant0ine/go-json-rest/rest"
+  "github.com/PuerkitoBio/goquery"
   //"github.com/k0kubun/pp"
   "log"
   "fmt"
