@@ -40,8 +40,10 @@ func main() {
     log.Fatal(err)
   }
 
+  port := os.Getenv("PORT")
+
   api.SetApp(router)
-  log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
+  log.Fatal(http.ListenAndServe(port, api.MakeHandler()))
 }
 
 func PostCancel(w rest.ResponseWriter, r *rest.Request) {
