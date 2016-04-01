@@ -48,7 +48,7 @@ func main() {
       AccessControlAllowCredentials: true,
       AccessControlMaxAge:           3600,
     }
-  )
+  })
 
   if err != nil {
     log.Fatal(err)
