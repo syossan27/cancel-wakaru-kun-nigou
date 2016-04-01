@@ -1,17 +1,15 @@
 package main
 
 import (
-  "os"
   "log"
-  "fmt"
   "net/http"
-  "sync"
   "strconv"
-  "runtime"
+  "os"
+  // "fmt"
 
   "github.com/ant0ine/go-json-rest/rest"
   "github.com/PuerkitoBio/goquery"
-  // "github.com/k0kubun/pp"
+  "github.com/k0kubun/pp"
 )
 
 type PostData struct {
@@ -34,7 +32,8 @@ func main() {
   api := rest.NewApi()
   api.Use(rest.DefaultDevStack...)
   router, err := rest.MakeRouter(
-    rest.Post("/", PostCancel),
+    rest.Post("/join", PostJoin),
+    rest.Post("/cancel", PostCancel),
   )
 
   if err != nil {
@@ -45,12 +44,10 @@ func main() {
 
   api.SetApp(router)
   log.Fatal(http.ListenAndServe(":" + port, api.MakeHandler()))
+  // log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
 }
 
-func PostCancel(w rest.ResponseWriter, r *rest.Request) {
-  cpus := runtime.NumCPU()
-  runtime.GOMAXPROCS(cpus)
-
+func PostJoin(w rest.ResponseWriter, r *rest.Request) {
   post_data := PostData{}
   err := r.DecodeJsonPayload(&post_data)
   if err != nil {
@@ -62,18 +59,27 @@ func PostCancel(w rest.ResponseWriter, r *rest.Request) {
   }
 
   list := List{}
-  fmt.Println(post_data.Url)
   GetPageToConnpass(post_data.Url, &list)
+  w.WriteJson(list.Url)
+}
 
-  wg := new(sync.WaitGroup)
-  for _, url := range list.Url {
-    wg.Add(1)
-    go GetUserPageToConnpass(&list, url, wg)
+func PostCancel(w rest.ResponseWriter, r *rest.Request) {
+  post_data := PostData{}
+  err := r.DecodeJsonPayload(&post_data)
+  if err != nil {
+    rest.Error(w, err.Error(), http.StatusInternalServerError)
+    return
   }
-  wg.Wait()
+  if post_data.Url == "" {
+    rest.Error(w, "url required", 400)
+  }
 
-  w.WriteJson(list.User)
-  // pp.Println(list.User)
+  url := post_data.Url
+
+  user := GetUserPageToConnpass(url)
+  pp.Println(user)
+
+  w.WriteJson(user)
 }
 
 func GetPageToConnpass(url string, list *List) {
@@ -86,11 +92,11 @@ func GetPageToConnpass(url string, list *List) {
   })
 }
 
-func GetUserPageToConnpass(list *List, url string, wg *sync.WaitGroup) {
+func GetUserPageToConnpass(url string) User {
+  user := User{"", "", 0, 0}
+
   // 退会ユーザーなどはURLが取れないため無視
   if url != "" {
-    user := User{"", "", 0, 0}
-
     doc, _ := goquery.NewDocument(url)
     image_elm := doc.Find("#side_area > div.mb_20.text_center img")
     user.Name, _ = image_elm.Attr("title")
@@ -120,8 +126,7 @@ func GetUserPageToConnpass(list *List, url string, wg *sync.WaitGroup) {
         })
       }
     }
-
-    list.User = append(list.User, user)
   }
-  wg.Done()
+
+  return user
 }
