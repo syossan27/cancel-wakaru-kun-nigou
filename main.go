@@ -44,10 +44,10 @@ func main() {
     },
     AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
     AllowedHeaders: []string{
-      "Accept", "Content-Type", "X-Custom-Header", "Origin"},
-      AccessControlAllowCredentials: true,
-      AccessControlMaxAge:           3600,
-    }
+      "Accept", "Content-Type", "X-Custom-Header", "Origin",
+    },
+    AccessControlAllowCredentials: true,
+    AccessControlMaxAge:           3600,
   })
 
   if err != nil {
