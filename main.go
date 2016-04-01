@@ -36,6 +36,20 @@ func main() {
     rest.Post("/cancel", PostCancel),
   )
 
+  api.Use(&rest.CorsMiddleware{
+    RejectNonCorsRequests: false,
+    OriginValidator: func(origin string, request *rest.Request) bool {
+      // allow every origin (for now)
+      return true
+    },
+    AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+    AllowedHeaders: []string{
+      "Accept", "Content-Type", "X-Custom-Header", "Origin"},
+      AccessControlAllowCredentials: true,
+      AccessControlMaxAge:           3600,
+    }
+  )
+
   if err != nil {
     log.Fatal(err)
   }
